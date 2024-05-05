@@ -8,36 +8,21 @@ const User = require("./models/user");
 
 const url = process.env.MONGO_URI;
 mongoose.connect(url);
+// const db = mongoose.connection;
+// console.log(db.collection);
+// const db = mongoose.connection;
+// db.on('error', console.error.bind(console, 'connection error:'));
+// db.once('open', function() {
+//   // Connection successful
+//   // Accessing specific collection
+//   const usersCollection = db.collection('users');
+//   // Now you can perform operations on MyCollection
+// });
+// console.log(usersCollection);
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api/users", bodyParser.json());
-
-
-
-// // Connection URL
-// const url = process.env.MONGO_URI;
-// const client = new MongoClient(url);
-
-// // Database Name
-// const dbName = "test";
-// const collectionName = "exerciseusers";
-
-// // Define function to connect to mongodb server
-// async function main() {
-//   await client.connect();
-//   console.log("Connected successfully to server");
-//   const db = client.db(dbName);
-//   const collection = db.collection("collectionName");
-//   // Can add more code here:
-//   return "done.";
-// }
-
-// // Execute server connection
-// main()
-//   .then(console.log)
-//   .catch(console.error)
-//   .finally(() => client.close());
 
 app.use(cors());
 app.use(express.static("public"));
@@ -56,23 +41,9 @@ app
   .post(async function (req, res) {
     console.log("/users post fired");
     console.log(req.body.username);
-
-    // try {
-    //   const userData = req.body.username;
-
-    //   const db = client.db(dbName);
-    //   const usersCollection = db.collection(collectionName);
-    //   const result = await usersCollection.insertOne({userData});
-    //   res
-    //     .status(201)
-    //     .json({
-    //       message: "User created successfully",
-    //       insertedUser: result.ops[0],
-    //     });
-    // } catch (error) {
-    //   console.error("Error inserting user:", error);
-    //   res.status(500).json({ message: "Internal server error" });
-    // }
+    const newUser = new User({ username: req.body.username});
+    console.log(newUser);
+    await newUser.save();
 
     return res.send({ obj: "/users post fired" });
   });
