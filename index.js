@@ -1,7 +1,33 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const { MongoClient } = require('mongodb');
 require("dotenv").config();
+
+// Connection URL
+const url = process.env.MONGO_URI;
+const client = new MongoClient(url);
+
+// Database Name
+const dbName = 'test';
+
+// Define function to connect to mongodb server
+async function main() {
+  await client.connect();
+  console.log('Connected successfully to server');
+  const db = client.db(dbName);
+  const collection = db.collection('exerciseusers');
+  // Can add more code here:
+
+  return 'done.';
+};
+
+// Execute server connection
+main()
+  .then(console.log)
+  .catch(console.error)
+  .finally(() => client.close());
+
 
 app.use(cors());
 app.use(express.static("public"));
