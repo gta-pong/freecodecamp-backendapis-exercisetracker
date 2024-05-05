@@ -9,7 +9,6 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
 });
 
-
 app
   .route("/users")
   .get(function (req, res) {
