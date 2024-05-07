@@ -40,18 +40,11 @@ app
 
 app.post("/api/users/:_id/exercises", async function (req, res) {
   console.log("/users/:_id/exercises post fired");
-  // const updatedUser = await User.findOne({ _id: req.body[":_id"] });
-  // console.log(req);
-  console.log(typeof req.params._id);
-  console.log(req.params._id);
-  console.log(typeof req.body[":_id"]);
-  // const filter = { _id: req.body[":_id"] };
-  // const filter = { _id: req.params._id};
-  const filter = { _id: req.params._id};
-  console.log(filter);
+  const filter = { _id: req.params._id };
+
   function checkDate() {
     if (req.body.date) {
-      new Date(req.body.date).toDateString();
+      return new Date(req.body.date).toDateString();
     } else {
       console.log("default date used");
     }
@@ -64,22 +57,7 @@ app.post("/api/users/:_id/exercises", async function (req, res) {
 
   let doc = await User.findOneAndUpdate(filter, update, { new: true });
   console.log(doc);
-  res.json(doc);
-
-//   try {
-//     let doc = await User.findOneAndUpdate(filter, update, { new: true });
-//     // Handle successful operation
-//     //LEFT: i THINK u need to pass in a callback function after the options (new: true);
-//     console.log(doc);
-//     res.json(doc);
-  
-// } catch (error) {
-//     // Handle error
-//     res.status(500).json(error)
-// }
-
-//  res.send({ obj: "/users/:_id/exercises post fired" });
-
+  return res.status(200).json(doc);
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
