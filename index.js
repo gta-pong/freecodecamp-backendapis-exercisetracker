@@ -15,7 +15,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api/users", bodyParser.json());
 app.use("/api/users/:_id/exercises", bodyParser.json());
 
-
 app.use(cors());
 app.use(express.static("public"));
 app.get("/", (req, res) => {
@@ -28,7 +27,7 @@ app
   .route("/api/users")
   .get(async function (req, res) {
     console.log("/users get fired");
-    let allUsers = {}
+    let allUsers = {};
     allUsers = await User.find({});
     return res.send(allUsers);
   })
@@ -41,22 +40,46 @@ app
 
 app.post("/api/users/:_id/exercises", async function (req, res) {
   console.log("/users/:_id/exercises post fired");
+  // const updatedUser = await User.findOne({ _id: req.body[":_id"] });
   // console.log(req);
-  //LEFT: newExercise is not attaching to existing _id. Find a way to update one 
-  //doc's id instead of creating new.
-  const newExercise = new Exercise({
-    _id: req.body[':_id'],
+  console.log(typeof req.params._id);
+  console.log(req.params._id);
+  console.log(typeof req.body[":_id"]);
+  // const filter = { _id: req.body[":_id"] };
+  // const filter = { _id: req.params._id};
+  const filter = { _id: req.params._id};
+  console.log(filter);
+  function checkDate() {
+    if (req.body.date) {
+      new Date(req.body.date).toDateString();
+    } else {
+      console.log("default date used");
+    }
+  }
+  const update = {
     description: req.body.description,
     duration: req.body.duration,
-    date: req.body.date,
-  });
-  await newExercise.save();
-  // console.log(newExercise);
-  let oneUser = await User.find({ _id: req.body[':_id']});
-  console.log(oneUser);
-  return res.send('testobj');
+    date: checkDate(),
+  };
 
-  // return res.send({ obj: "/users/:_id/exercises post fired" });
+  let doc = await User.findOneAndUpdate(filter, update, { new: true });
+  console.log(doc);
+  res.json(doc);
+
+//   try {
+//     let doc = await User.findOneAndUpdate(filter, update, { new: true });
+//     // Handle successful operation
+//     //LEFT: i THINK u need to pass in a callback function after the options (new: true);
+//     console.log(doc);
+//     res.json(doc);
+  
+// } catch (error) {
+//     // Handle error
+//     res.status(500).json(error)
+// }
+
+//  res.send({ obj: "/users/:_id/exercises post fired" });
+
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
