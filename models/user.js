@@ -17,7 +17,9 @@ let userSchema = new mongoose.Schema(
       default: () => new Date().toDateString(),
     },
   },
-  { collection: "exerciseusers" }
+  { collection: "exerciseusers",
+    versionKey:false,
+   }
 );
 
 module.exports = mongoose.model("User", userSchema);
