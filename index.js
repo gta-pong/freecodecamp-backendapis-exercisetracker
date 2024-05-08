@@ -72,11 +72,18 @@ app.post("/api/users/:_id/exercises", async function (req, res) {
 
 app.get("/api/users/:_id/logs", async function (req, res) {
   console.log("/api/users/:_id/logs was hit");
+  console.log(req.query);
+  let from = req.query.from;
+  let to = req.query.to;
+  let limit = parseInt(req.query.limit);
+
   const filter = { _id: req.params._id }
   let doc = await User.findOne(filter).exec();
   // console.log(doc);
   let count = doc.exercises.length;
   // console.log(count);
+
+
   let responseObj = {};
   responseObj._id = doc._id;
   responseObj.username = doc.username;
@@ -85,6 +92,7 @@ app.get("/api/users/:_id/logs", async function (req, res) {
   console.log(responseObj);
   return res.json(responseObj);
 });
+
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log("Your app is listening on port " + listener.address().port);
