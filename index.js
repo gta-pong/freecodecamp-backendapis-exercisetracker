@@ -49,15 +49,34 @@ app.post("/api/users/:_id/exercises", async function (req, res) {
       console.log("default date used");
     }
   }
+
   const update = {
-    description: req.body.description,
-    duration: req.body.duration,
-    date: checkDate(),
+    $push: {
+      exercises: new Exercise({
+        description: req.body.description,
+        duration: req.body.duration,
+        date: checkDate(),
+      }),
+    },
   };
 
   let doc = await User.findOneAndUpdate(filter, update, { new: true });
-  console.log(doc);
-  return res.status(200).json(doc);
+  let responseObj = {};
+  responseObj._id = doc._id;
+  responseObj.username = doc.username;
+  responseObj.description = update.$push.exercises.description;
+  responseObj.duration = update.$push.exercises.duration;
+  responseObj.date = update.$push.exercises.date;
+  return res.status(200).json(responseObj);
+});
+
+app.get("/api/users/:_id/logs", async function (req, res) {
+  console.log("/api/users/:_id/logs was hit");
+
+  let responseObj = {};
+  responseObj.count = 0;
+
+  return res.json(responseObj);
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {

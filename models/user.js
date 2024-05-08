@@ -1,9 +1,7 @@
 let mongoose = require("mongoose");
 
-
-let userSchema = new mongoose.Schema(
+let exerciseSchema = new mongoose.Schema(
   {
-    username: String,
     description: {
       type: String,
       default: ".",
@@ -17,9 +15,17 @@ let userSchema = new mongoose.Schema(
       default: () => new Date().toDateString(),
     },
   },
-  { collection: "exerciseusers",
-    versionKey:false,
-   }
+  { collection: "exerciseusers", versionKey: false }
+);
+
+let userSchema = new mongoose.Schema(
+  {
+    username: String,
+    exercises: {
+      type: [exerciseSchema],
+    },
+  },
+  { collection: "exerciseusers", versionKey: false }
 );
 
 module.exports = mongoose.model("User", userSchema);
