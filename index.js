@@ -72,10 +72,17 @@ app.post("/api/users/:_id/exercises", async function (req, res) {
 
 app.get("/api/users/:_id/logs", async function (req, res) {
   console.log("/api/users/:_id/logs was hit");
-
+  const filter = { _id: req.params._id }
+  let doc = await User.findOne(filter).exec();
+  // console.log(doc);
+  let count = doc.exercises.length;
+  // console.log(count);
   let responseObj = {};
-  responseObj.count = 0;
-
+  responseObj._id = doc._id;
+  responseObj.username = doc.username;
+  responseObj.count = count;
+  responseObj.log = doc.exercises;
+  console.log(responseObj);
   return res.json(responseObj);
 });
 
