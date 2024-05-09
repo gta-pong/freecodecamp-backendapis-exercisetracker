@@ -93,6 +93,9 @@ app.get("/api/users/:_id/logs", async function (req, res) {
   filteredArr = [...doc.exercises];
 
   // Define and execute query parameters to filteredArr
+    //LEFT: last issue is a test for only query of limit=1.
+    //solve with if / conditionals (if ! from / to then ...)
+
 
   function applyFilter(arr, from, to, limit) {
     console.log("applyFilter function fired");
@@ -104,14 +107,17 @@ app.get("/api/users/:_id/logs", async function (req, res) {
       return entryDate >= fromDate && entryDate <= toDate;
     });
 
-    const limitedArr = filteredByDate.slice(0, limit);
+    let limitVar = null;
+    limit ? limitVar = limit : limitVar = 99;
+    console.log(limitVar);
+    const limitedArr = filteredByDate.slice(0, limitVar);
     return limitedArr;
   }
 
-  // console.log(applyFilter(doc.exercises, from, to, limit));
   let filteredLogs = applyFilter(doc.exercises, from, to, limit);
 
-  console.log(Object.keys(req.query).length);
+
+  //LEFT: last issue is a test for only query of limit=1.wrap everything else in an if statement. 
 
   let responseObj = {};
   responseObj._id = doc._id;
