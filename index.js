@@ -72,27 +72,56 @@ app.post("/api/users/:_id/exercises", async function (req, res) {
 
 app.get("/api/users/:_id/logs", async function (req, res) {
   console.log("/api/users/:_id/logs was hit");
-  console.log(req.query);
+
+  // Query by _id and count exercises
+
+  const filter = { _id: req.params._id };
+  let doc = await User.findOne(filter).exec();
+  let count = doc.exercises.length;
+
+  // Filter Exercises:
+
+  // Redefine query parameters
+
   let from = req.query.from;
   let to = req.query.to;
   let limit = parseInt(req.query.limit);
 
-  const filter = { _id: req.params._id }
-  let doc = await User.findOne(filter).exec();
-  // console.log(doc);
-  let count = doc.exercises.length;
-  // console.log(count);
+  // Define new filteredArr
 
+  let filteredArr = null;
+  filteredArr = [...doc.exercises];
+
+  // Define and execute query parameters to filteredArr
+
+  function applyFilter(arr, from, to, limit) {
+    console.log("applyFilter function fired");
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+
+    const filteredByDate = arr.filter((entry) => {
+      const entryDate = new Date(entry.date);
+      return entryDate >= fromDate && entryDate <= toDate;
+    });
+
+    const limitedArr = filteredByDate.slice(0, limit);
+    return limitedArr;
+  }
+
+  // console.log(applyFilter(doc.exercises, from, to, limit));
+  let filteredLogs = applyFilter(doc.exercises, from, to, limit);
+
+  console.log(Object.keys(req.query).length);
 
   let responseObj = {};
   responseObj._id = doc._id;
   responseObj.username = doc.username;
   responseObj.count = count;
   responseObj.log = doc.exercises;
-  console.log(responseObj);
+  responseObj.log = Object.keys(req.query).length === 0 ? doc.exercises : filteredLogs;
+  // console.log(responseObj);
   return res.json(responseObj);
 });
-
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log("Your app is listening on port " + listener.address().port);
