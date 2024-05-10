@@ -73,6 +73,16 @@ app.post("/api/users/:_id/exercises", async function (req, res) {
 app.get("/api/users/:_id/logs", async function (req, res) {
   console.log("/api/users/:_id/logs was hit");
 
+  // Define test for enterd parameters
+  function paramTest(bool) {
+    let entered = null;
+    if (typeof bool !== "undefined") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   // Query by _id and count exercises
 
   const filter = { _id: req.params._id };
@@ -92,13 +102,30 @@ app.get("/api/users/:_id/logs", async function (req, res) {
   let filteredArr = null;
   filteredArr = [...doc.exercises];
 
-  // Define and execute query parameters to filteredArr
-    //LEFT: last issue is a test for only query of limit=1.
-    //solve with if / conditionals (if ! from / to then ...)
+  function applyFilterDates(arr, from, to, limit) {
+    console.log("applyFilterDates function fired");
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
 
+    const filteredByDate = arr.filter((entry) => {
+      const entryDate = new Date(entry.date);
+      return entryDate >= fromDate && entryDate <= toDate;
+    });
 
-  function applyFilter(arr, from, to, limit) {
-    console.log("applyFilter function fired");
+    // console.log(filteredByDate);
+    return filteredByDate;
+  }
+
+  function applyFilterLimit(arr, from, to, limit) {
+    console.log("applyFilterLimit function fired");
+    let limitVar = null;
+    limit ? (limitVar = limit) : (limitVar = 99);
+    const limitedArr = doc.exercises.slice(0, limitVar);
+    return limitedArr;
+  }
+
+  function applyFilterBoth(arr, from, to, limit) {
+    console.log("applyFilterBoth function fired");
     const fromDate = new Date(from);
     const toDate = new Date(to);
 
@@ -108,24 +135,57 @@ app.get("/api/users/:_id/logs", async function (req, res) {
     });
 
     let limitVar = null;
-    limit ? limitVar = limit : limitVar = 99;
-    console.log(limitVar);
+    limit ? (limitVar = limit) : (limitVar = 99);
+    // console.log(limitVar);
     const limitedArr = filteredByDate.slice(0, limitVar);
     return limitedArr;
   }
 
-  let filteredLogs = applyFilter(doc.exercises, from, to, limit);
+  let filteredLogsBoth = applyFilterBoth(doc.exercises, from, to, limit);
+  let filteredLogsDate = applyFilterDates(doc.exercises, from, to, limit);
+  let filteredLogsLimit = applyFilterLimit(doc.exercises, from, to, limit);
 
 
-  //LEFT: last issue is a test for only query of limit=1.wrap everything else in an if statement. 
-
+  
   let responseObj = {};
   responseObj._id = doc._id;
   responseObj.username = doc.username;
   responseObj.count = count;
-  responseObj.log = doc.exercises;
-  responseObj.log = Object.keys(req.query).length === 0 ? doc.exercises : filteredLogs;
-  // console.log(responseObj);
+  responseObj.log = [];
+
+  //LEFT:Execute conditional array manipulation based on entered params (run it so see console.log responseobj)
+  if (
+    paramTest(req.query.from) === true &&
+    paramTest(req.query.to) === true &&
+    paramTest(req.query.limit) === true
+  ) {
+    console.log("all params");
+    responseObj.log = filteredLogsBoth;
+    console.log('filteredLogsBoth: ' + responseObj.log);
+
+  } else if (
+    (paramTest(req.query.from) === true || paramTest(req.query.to) === true) &&
+    paramTest(req.query.limit) === false
+  ) {
+    console.log("dates but no limit");
+    responseObj.log = filteredLogsDate;
+
+    console.log('filteredLogsDate: ' + responseObj.log);
+
+  } else if (
+    (paramTest(req.query.from) === false ||
+      paramTest(req.query.to) === false) &&
+    paramTest(req.query.limit) === true
+  ) {
+    console.log("limit but no dates");
+    responseObj.log = filteredLogsLimit;
+    console.log('filteredLogsLimit: ' + responseObj.log);
+
+  } else {
+    console.log("no / invalid params");
+    responseObj.log = [...doc.exercises]
+    console.log('doc.exercises: ' + responseObj.log);
+  }
   return res.json(responseObj);
 });
 
